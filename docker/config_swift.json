@@ -1,0 +1,18 @@
+{
+  "backend": {
+    "swift": {
+      "auth_url": "https://api.swift.mydomain.com/auth/v1.0",
+      "tenant": "123123",
+      "container": "vault-backend",
+      "username": "INSERT_USERNAME",
+      "password": "INSERT_PASSWORD"
+    }
+  },
+  "listener": {
+    "tcp":{
+      "address": "0.0.0.0:8200",
+      "tls_disable": 1
+    }
+  },
+  "ui": true
+}

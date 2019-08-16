@@ -1,0 +1,51 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: vault-unsealer
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          name: cronjob
+        spec:
+          containers:
+          - name: vault-unsealer
+            image: vault:1.2.1
+            command: ["/bin/sh", "-c"]
+            args:
+              - vault status;
+                if [ $? -eq 0 ];
+                then echo "Vault ready";
+                else echo "Vault sealed";
+                vault operator unseal $VAULT_KEY_1;
+                fi;
+            envFrom:
+            - secretRef:
+                name: vault-unsealer-secret
+            # - configMapRef:
+            #     name: vault-unsealer-config
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-unsealer-secret
+type: Opaque
+data:
+  #echo -n "https://vault.vault.svc:8200" | base64
+  VAULT_ADDR: aHR0cHM6Ly92YXVsdC52YXVsdC5zdmM6ODIwMA==
+  VAULT_SKIP_VERIFY: dHJ1ZQ==
+  VAULT_TOKEN: INSERT_PASSWORD_BASE64
+  VAULT_KEY_1: INSERT_PASSWORD_BASE64
+#---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: vault-unsealer-config
+# data:
+#   VAULT_ADDR: https://vault.vault.svc:8200
+#   VAULT_TOKEN: INSERT_PASSWORD
+#   VAULT_KEY_1: INSERT_PASSWORD
+#   VAULT_SKIP_VERIFY: "true"
